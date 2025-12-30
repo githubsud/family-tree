@@ -1,0 +1,13 @@
+
+# Reset the ignore list (start fresh)
+#!include:.gitignore
+
+# Explicitly Include .env.local (negate the ignore)
+!.env.local
+
+# But still ignore these (from default gitignore + extras)
+/node_modules
+/.next
+/build
+.git
+.vercel
