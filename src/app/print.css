@@ -1,0 +1,30 @@
+@media print {
+    body {
+        background: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    header,
+    button,
+    .print\:hidden {
+        display: none !important;
+    }
+
+    .min-h-screen {
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Allow printing large trees by shrinking slightly if needed, or just overflowing */
+    @page {
+        size: landscape;
+        margin: 1cm;
+    }
+}
