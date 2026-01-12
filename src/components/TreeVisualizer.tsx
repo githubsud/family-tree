@@ -83,7 +83,7 @@ const TreeNode = ({
 
         if (nodeStyle === 'text') {
             return (
-                <div className={`p-1 px-3 rounded border text-sm font-bold ${baseColor} whitespace-nowrap`}>
+                <div className={`p-1 px-3 rounded border text-sm font-bold ${baseColor} whitespace-nowrap text-gray-900`}>
                     {member.name}
                 </div>
             );
@@ -94,7 +94,7 @@ const TreeNode = ({
                 <div className={`
                     p-2 w-32 border-2 rounded shadow-sm text-center 
                     transition-transform hover:scale-105 active:scale-95
-                    ${baseColor}
+                    ${baseColor} text-gray-900
                 `}>
                     <div className="font-bold text-sm truncate">{member.name}</div>
                 </div>
@@ -106,7 +106,7 @@ const TreeNode = ({
             <div className={`
                 flex flex-col items-center justify-center p-2 rounded-full border-4 shadow-lg w-20 h-20 sm:w-24 sm:h-24 
                 transition-transform hover:scale-110 active:scale-95 bg-white
-                ${baseColor} print:border-2 print:shadow-none
+                ${baseColor} print:border-2 print:shadow-none text-gray-900
             `}>
                 <span className="text-2xl sm:text-3xl mb-1">{icon}</span>
                 <span className="font-bold text-center text-[10px] sm:text-xs line-clamp-2 leading-tight">{member.name}</span>
@@ -182,47 +182,49 @@ const TreeNode = ({
 
             {/* 1. NODE ITSELF */}
             <div className={`relative group z-10 p-2 flex justify-center items-center`}>
-                {renderNodeContent()}
+                <div className="relative group">
+                    {renderNodeContent()}
 
-                {/* Collapse Toggle (Only if has children) */}
-                {hasChildren && (
-                    <button
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className={`
-                            absolute w-5 h-5 rounded-full z-20 
-                            bg-white border text-xs flex items-center justify-center shadow hover:bg-gray-100 cursor-pointer
-                            ${isHorizontal
-                                ? 'top-1/2 -left-3 -translate-y-1/2'
-                                : isBottomUp
-                                    ? '-top-3 left-1/2 -translate-x-1/2'
-                                    : '-bottom-3 left-1/2 -translate-x-1/2'
-                            }
-                        `}
-                    >
-                        {isCollapsed ? '+' : '-'}
-                    </button>
-                )}
+                    {/* Collapse Toggle (Only if has children) */}
+                    {hasChildren && (
+                        <button
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                            className={`
+                                absolute w-5 h-5 rounded-full z-20 
+                                bg-white border text-xs flex items-center justify-center shadow hover:bg-gray-100 cursor-pointer
+                                ${isHorizontal
+                                    ? 'top-1/2 -left-3 -translate-y-1/2'
+                                    : isBottomUp
+                                        ? '-top-3 left-1/2 -translate-x-1/2'
+                                        : '-bottom-3 left-1/2 -translate-x-1/2'
+                                }
+                            `}
+                        >
+                            {isCollapsed ? '+' : '-'}
+                        </button>
+                    )}
 
-                {/* Add/Edit Controls (Hover) */}
-                {isOwner && (
-                    <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
-                        <button onClick={() => setShowAdd(!showAdd)} className="bg-green-600 text-white w-5 h-5 rounded-full flex items-center justify-center shadow text-xs" title="إضافة">+</button>
-                        {!member.isRoot && <button onClick={handleDelete} className="bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center shadow text-xs mt-1" title="حذف">x</button>}
-                    </div>
-                )}
-
-                {/* Add Popup */}
-                {showAdd && (
-                    <div className="absolute top-full mt-2 bg-white p-3 rounded shadow-xl border w-48 z-[100] print:hidden">
-                        <h4 className="text-xs font-bold mb-2 text-center text-gray-700">إضافة ابن/ابنة</h4>
-                        <input className="border p-1 w-full text-sm mb-2 rounded" placeholder="الاسم" autoFocus value={newChildName} onChange={e => setNewChildName(e.target.value)} />
-                        <div className="flex gap-2 mb-2">
-                            <button onClick={() => setNewChildGender('male')} className={`flex-1 text-xs py-1 rounded ${newChildGender === 'male' ? 'bg-yellow-200 ring-2 ring-yellow-500' : 'bg-gray-100'}`}>ذكر</button>
-                            <button onClick={() => setNewChildGender('female')} className={`flex-1 text-xs py-1 rounded ${newChildGender === 'female' ? 'bg-pink-200 ring-2 ring-pink-500' : 'bg-gray-100'}`}>أنثى</button>
+                    {/* Add/Edit Controls (Hover) */}
+                    {isOwner && (
+                        <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
+                            <button onClick={() => setShowAdd(!showAdd)} className="bg-green-600 text-white w-5 h-5 rounded-full flex items-center justify-center shadow text-xs" title="إضافة">+</button>
+                            {!member.isRoot && <button onClick={handleDelete} className="bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center shadow text-xs mt-1" title="حذف">x</button>}
                         </div>
-                        <button onClick={handleAddChild} className="bg-blue-600 text-white w-full text-xs py-1.5 rounded hover:bg-blue-700">حفظ</button>
-                    </div>
-                )}
+                    )}
+
+                    {/* Add Popup */}
+                    {showAdd && (
+                        <div className="absolute top-full mt-2 bg-white p-3 rounded shadow-xl border w-48 z-[100] print:hidden">
+                            <h4 className="text-xs font-bold mb-2 text-center text-gray-700">إضافة ابن/ابنة</h4>
+                            <input className="border p-1 w-full text-sm mb-2 rounded" placeholder="الاسم" autoFocus value={newChildName} onChange={e => setNewChildName(e.target.value)} />
+                            <div className="flex gap-2 mb-2">
+                                <button onClick={() => setNewChildGender('male')} className={`flex-1 text-xs py-1 rounded ${newChildGender === 'male' ? 'bg-yellow-200 ring-2 ring-yellow-500' : 'bg-gray-100'}`}>ذكر</button>
+                                <button onClick={() => setNewChildGender('female')} className={`flex-1 text-xs py-1 rounded ${newChildGender === 'female' ? 'bg-pink-200 ring-2 ring-pink-500' : 'bg-gray-100'}`}>أنثى</button>
+                            </div>
+                            <button onClick={handleAddChild} className="bg-blue-600 text-white w-full text-xs py-1.5 rounded hover:bg-blue-700">حفظ</button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* For Bottom-Up, Incoming Connector is handled at the start via flex-col-reverse */}
@@ -230,8 +232,7 @@ const TreeNode = ({
             {/* 2. CONNECTIONS & CHILDREN */}
             {!isCollapsed && hasChildren && (
                 <>
-                    {/* The "Spine" leaving the node towards children's bus (Not for Root) */}
-                    {level > 0 && <div className={`${bgColor} ${isHorizontal ? "w-8 h-[2px]" : "h-8 w-[2px]"}`}></div>}
+                    {/* The "Spine" leaving the node towards children's bus (Removed for consistency) */}
 
                     {/* Children Container - remove borders! */}
                     <div className={isHorizontal
