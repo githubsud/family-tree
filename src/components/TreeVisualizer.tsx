@@ -24,7 +24,10 @@ const TreeNode = ({
     nodeStyle,
     level = 0,
     isFirst = false,
-    isLast = false
+    isLast = false,
+    expandedIds,
+    onToggle,
+    onExpand
 }: {
     member: FamilyMember,
     allMembers: FamilyMember[],
@@ -34,13 +37,19 @@ const TreeNode = ({
     nodeStyle: NodeStyle,
     level?: number,
     isFirst?: boolean,
-    isLast?: boolean
+    isLast?: boolean,
+    expandedIds: Set<string>,
+    onToggle: (id: string) => void,
+    onExpand: (id: string) => void
 }) => {
     const children = allMembers.filter(m => m.parentId === member.id);
     const hasChildren = children.length > 0;
 
     // Collapsed state
-    const [isCollapsed, setIsCollapsed] = useState(level > 0);
+    // Collapsed state derived from props
+    // If ID is in set, it is expanded. If not, it is collapsed.
+    const isExpanded = expandedIds.has(member.id);
+    const isCollapsed = !isExpanded;
 
     // Add child state
     const [showAdd, setShowAdd] = useState(false);
@@ -53,7 +62,7 @@ const TreeNode = ({
         setShowAdd(false);
         setNewChildName("");
         reload();
-        setIsCollapsed(false); // auto expand
+        onExpand(member.id); // auto expand parent
     };
 
     const handleDelete = async () => {
@@ -188,7 +197,7 @@ const TreeNode = ({
                     {/* Collapse Toggle (Only if has children) */}
                     {hasChildren && (
                         <button
-                            onClick={() => setIsCollapsed(!isCollapsed)}
+                            onClick={() => onToggle(member.id)}
                             className={`
                                 absolute w-5 h-5 rounded-full z-20 
                                 bg-white border text-xs flex items-center justify-center shadow hover:bg-gray-100 cursor-pointer
@@ -252,6 +261,9 @@ const TreeNode = ({
                                 level={level + 1}
                                 isFirst={idx === 0}
                                 isLast={idx === children.length - 1}
+                                expandedIds={expandedIds}
+                                onToggle={onToggle}
+                                onExpand={onExpand}
                             />
                         ))}
                     </div>
@@ -263,16 +275,46 @@ const TreeNode = ({
 
 export default function TreeVisualizer({ members, rootId, isOwner, reload }: Props) {
     // --- State for Preferences ---
+    // --- State for Preferences ---
     const [layoutMode, setLayoutMode] = useState<LayoutMode>('horizontal');
     const [nodeStyle, setNodeStyle] = useState<NodeStyle>('text');
 
-    // Load preferences on mount
+    // --- State for Expansion (Persisted) ---
+    const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set([rootId]));
+
+    // Load preferences & expansion on mount
     useEffect(() => {
         const savedLayout = localStorage.getItem('tree_layout') as LayoutMode;
         const savedStyle = localStorage.getItem('tree_style') as NodeStyle;
+        const savedExpanded = localStorage.getItem(`tree_expanded_${rootId}`);
+
         if (savedLayout) setLayoutMode(savedLayout);
         if (savedStyle) setNodeStyle(savedStyle);
-    }, []);
+        if (savedExpanded) {
+            try {
+                setExpandedIds(new Set(JSON.parse(savedExpanded)));
+            } catch (e) {
+                console.error("Failed to parse expanded state", e);
+            }
+        }
+    }, [rootId]);
+
+    // Handlers
+    const toggleExpand = (id: string) => {
+        const newSet = new Set(expandedIds);
+        if (newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        setExpandedIds(newSet);
+        localStorage.setItem(`tree_expanded_${rootId}`, JSON.stringify(Array.from(newSet)));
+    };
+
+    const expandNode = (id: string) => {
+        if (expandedIds.has(id)) return;
+        const newSet = new Set(expandedIds);
+        newSet.add(id);
+        setExpandedIds(newSet);
+        localStorage.setItem(`tree_expanded_${rootId}`, JSON.stringify(Array.from(newSet)));
+    };
 
     // Save preferences
     const handleLayoutChange = (mode: LayoutMode) => {
@@ -328,6 +370,9 @@ export default function TreeVisualizer({ members, rootId, isOwner, reload }: Pro
                         reload={reload}
                         layoutMode={layoutMode}
                         nodeStyle={nodeStyle}
+                        expandedIds={expandedIds}
+                        onToggle={toggleExpand}
+                        onExpand={expandNode}
                     />
                 </div>
             </div>
