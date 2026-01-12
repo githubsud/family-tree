@@ -62,12 +62,12 @@ This project is configured for one-click deployment to Google Cloud Run using `g
 
 1.  **Build Docker Image**:
     ```bash
-    gcloud builds submit --project=[YOUR_PROJECT_ID] --tag gcr.io/[YOUR_PROJECT_ID]/family-tree
+    gcloud builds submit --project=family-tree-members --tag gcr.io/family-tree-members/family-tree
     ```
 
 2.  **Deploy**:
     ```bash
-    gcloud run deploy family-tree --image gcr.io/[YOUR_PROJECT_ID]/family-tree --platform managed --allow-unauthenticated
+    gcloud run deploy family-tree --project=family-tree-members --image gcr.io/family-tree-members/family-tree --platform managed --allow-unauthenticated --region us-central1
     ```
 
 ## 📝 License
