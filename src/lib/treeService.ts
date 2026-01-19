@@ -86,6 +86,29 @@ export const addChild = async (parentId: string, childData: { name: string, gend
     return childId;
 };
 
+export const addSpouse = async (partnerId: string, spouseData: { name: string, gender: 'male' | 'female', treeId: string }) => {
+    // 1. Create Spouse Member (Marked as isSpouse)
+    const newSpouse: Omit<FamilyMember, "id"> = {
+        ...spouseData,
+        isSpouse: true,
+        spouseOf: partnerId, // Link to partner
+        parentId: null,      // Spouses don't necessarily have parents in this tree context (unless blood relative, but simpler to keep separate for now)
+        childrenIds: []
+    };
+    const spouseId = await addMember(newSpouse);
+
+    // 2. Update Partner (Optional: verify bidirectional link if needed, or just rely on 'spouseOf')
+    // For now, we rely on the visualizer finding the spouse by 'spouseOf' or we can add to a 'spousesIds' array if we added one.
+    // The visualizer currently looks for children, so maybe we should ALSO add them as a "child" of sorts?
+    // NO, better to query or store ID. Let's add 'spouseId' to the partner if it's the FIRST spouse, or manage list.
+    // simpler: update partner's spouseId if not set (for single spouse). For multiple, we might need an array.
+    // The requirement says "one, two or many spouses".
+    // So 'spouseId' in types.ts was singular "spouseId?: string | null". We might need to change that to array or just rely on 'spouseOf' query.
+    // However, `getTreeMembers` fetches ALL members. We can just filter on client side: members.filter(m => m.spouseOf === partnerId).
+
+    return spouseId;
+};
+
 // --- Import/Export ---
 
 export const exportSubtree = async (rootId: string): Promise<any> => {

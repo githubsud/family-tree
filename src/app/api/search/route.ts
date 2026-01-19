@@ -30,7 +30,15 @@ export async function POST(request: Request) {
         id: doc.id,
         name: data.name,
         gender: data.gender,
-        parentId: data.parentId
+        parentId: data.parentId,
+        spouseOf: data.spouseOf,
+        isSpouse: data.isSpouse,
+        order: data.order,
+        isDeceased: data.isDeceased,
+        location: data.location,
+        occupation: data.occupation,
+        hobbies: data.hobbies,
+        bio: data.bio
       };
     });
 
@@ -42,14 +50,21 @@ export async function POST(request: Request) {
       ${membersJson}
 
       The JSON structure represents nodes. 'parentId' points to the father/mother.
+      'spouseOf' points to the partner they are married to. 'isSpouse' means this node represents a spouse.
       
+      Note: A person might exist twice in the tree: once as a child (Member) and once as a wife (Spouse).
+      If the user asks about relationships involving such a person, check both records. 
+      If a Spouse node has the same name as a Member node, you may infer they could be the same person, but rely on the explicit 'spouseOf' link for marriage info.
+
       Your task is to answer the user's question based ONLY on this data.
       If the answer is not in the data, say "I don't know" or "Data not available".
       
       Common questions:
       - "Who are the sons of X?" -> Find members where parentId is X's ID.
-      - "Who is the father of Y?" -> Find the member with ID equal to Y's parentId.
-      - "List all females" -> Filter by gender 'female'.
+      - "Who is the wife of X?" -> Find members where spouseOf is X's ID.
+      - "Who lives in Sudan?" -> Check 'location.country'.
+      - "Who is an Engineer?" -> Check 'occupation.title'.
+      - "List all deceased members" -> Check 'isDeceased' is true.
       
       Output the answer in Arabic clearly and concisely.
     `;

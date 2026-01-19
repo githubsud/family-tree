@@ -11,6 +11,25 @@ export interface FamilyMember {
     birthDate?: string;
     photoUrl?: string;
     isRoot?: boolean;             // Flag for the root ancestor
+    order?: number;               // Manual ordering (1, 2, 3...)
+
+    // Spouse Fields
+    isSpouse?: boolean;           // True if this member is a spouse attached to another member
+    spouseOf?: string;            // ID of the partner they are attached to
+    spouseStatus?: 'current' | 'former'; // Relationship status
+
+    // Status & Bio
+    isDeceased?: boolean;
+    location?: {
+        country: string;
+        city: string;
+    };
+    occupation?: {
+        title: string;
+        status: 'student' | 'working' | 'unemployed' | 'retired';
+    };
+    hobbies?: string[];
+    bio?: string;
 }
 
 export interface FamilyTree {
