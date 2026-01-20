@@ -55,8 +55,10 @@ const TreeNode = ({
     isFirst = false,
     isLast = false,
     expandedIds,
+    activeCardId,
     onToggle,
-    onExpand
+    onExpand,
+    onCardTap
 }: {
     member: FamilyMember,
     allMembers: FamilyMember[],
@@ -68,8 +70,10 @@ const TreeNode = ({
     isFirst?: boolean,
     isLast?: boolean,
     expandedIds: Set<string>,
+    activeCardId: string | null,
     onToggle: (id: string) => void,
-    onExpand: (id: string) => void
+    onExpand: (id: string) => void,
+    onCardTap: (id: string) => void
 }) => {
     // Hierarchical Logic:
     // 1. If Member is NOT spouse: Visual Children = Spouses
@@ -229,11 +233,17 @@ const TreeNode = ({
             spouseLabel += ':';
 
             return (
-                <div className={`
+                <div
+                    className={`
                     flex flex-row items-center justify-center gap-1 px-3 py-1.5 rounded-lg border-2 shadow-sm
                     ${member.isDeceased ? 'bg-gray-100 border-gray-400 grayscale' : 'bg-white border-purple-300 bg-purple-50'}
-                    min-w-fit whitespace-nowrap relative group
-                `}>
+                    min-w-fit whitespace-nowrap relative group cursor-pointer
+                `}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onCardTap(member.id);
+                    }}
+                >
                     {/* Death Indicator */}
                     {member.isDeceased && (
                         <div className="absolute top-0 left-0 w-4 h-4 overflow-hidden rounded-tl-lg">
@@ -245,8 +255,10 @@ const TreeNode = ({
                     <span className="font-bold text-center text-xs leading-tight">{member.name || 'لا يوجد الإسم'}</span>
 
                     {/* Hover Detail Card */}
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-50 pointer-events-none shadow-xl text-center">
-                        {member.location?.country && <div>📍 {member.isDeceased ? 'الدولة' : 'الإقامة'}: {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
+                    <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-50 pointer-events-none shadow-xl text-center
+                    ${activeCardId === member.id ? '!block !z-[101]' : ''}
+                `}>
+                        {member.location?.country && <div>📍 {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
                         {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
                         {member.hobbies && member.hobbies.length > 0 && <div>🎨 {member.hobbies.join(', ')}</div>}
                         {member.bio && <div className="mt-1 italic border-t border-gray-600 pt-1">"{member.bio}"</div>}
@@ -262,9 +274,15 @@ const TreeNode = ({
 
         if (nodeStyle === 'text') {
             return (
-                <div className={`p-1 px-3 rounded border text-sm font-bold bg-white text-gray-900 group relative
-                    ${member.isDeceased ? 'border-gray-400 bg-gray-100 grayscale' : baseColor}
-                `}>
+                <div
+                    className={`p-1 px-3 rounded border text-sm font-bold bg-white text-gray-900 group relative cursor-pointer
+                ${member.isDeceased ? 'border-gray-400 bg-gray-100 grayscale' : baseColor}
+                `}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onCardTap(member.id);
+                    }}
+                >
                     {/* Death Indicator */}
                     {member.isDeceased && (
                         <div className="absolute top-[-2px] left-[-2px] w-3 h-3 z-20">
@@ -274,8 +292,10 @@ const TreeNode = ({
                     {member.name}
 
                     {/* Hover Detail Card */}
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-[100] pointer-events-none shadow-xl text-center">
-                        {member.location?.country && <div>📍 {member.isDeceased ? 'الدولة' : 'الإقامة'}: {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
+                    <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-[100] pointer-events-none shadow-xl text-center
+                    ${activeCardId === member.id ? '!block !z-[101]' : ''}
+                `}>
+                        {member.location?.country && <div>📍 {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
                         {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
                         {member.hobbies && member.hobbies.length > 0 && <div>🎨 {member.hobbies.join(', ')}</div>}
                         {member.bio && <div className="mt-1 italic border-t border-gray-600 pt-1">"{member.bio}"</div>}
@@ -287,11 +307,17 @@ const TreeNode = ({
 
         if (nodeStyle === 'rectangles') {
             return (
-                <div className={`
+                <div
+                    className={`
                     p-2 w-32 border-2 rounded shadow-sm text-center relative group
-                    transition-transform hover:scale-105 active:scale-95 bg-white
+                    transition-transform hover:scale-105 active:scale-95 bg-white cursor-pointer
                     ${member.isDeceased ? 'border-gray-400 bg-gray-100 grayscale' : baseColor} text-gray-900
-                `}>
+                `}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onCardTap(member.id);
+                    }}
+                >
                     {/* Death Indicator */}
                     {member.isDeceased && (
                         <div className="absolute top-0 left-0 w-4 h-4 overflow-hidden rounded-tl">
@@ -302,8 +328,10 @@ const TreeNode = ({
                     <div className="font-bold text-sm truncate">{member.name}</div>
 
                     {/* Hover Detail Card */}
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-[100] pointer-events-none shadow-xl text-center">
-                        {member.location?.country && <div>📍 {member.isDeceased ? 'الدولة' : 'الإقامة'}: {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
+                    <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-[100] pointer-events-none shadow-xl text-center
+                    ${activeCardId === member.id ? '!block !z-[101]' : ''}
+                `}>
+                        {member.location?.country && <div>📍 {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
                         {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
                         {member.hobbies && member.hobbies.length > 0 && <div>🎨 {member.hobbies.join(', ')}</div>}
                         {member.bio && <div className="mt-1 italic border-t border-gray-600 pt-1">"{member.bio}"</div>}
@@ -315,12 +343,18 @@ const TreeNode = ({
 
         // Default 'cards'
         return (
-            <div className={`
-                flex flex-col items-center justify-center p-2 rounded-full border-4 shadow-lg w-20 h-20 sm:w-24 sm:h-24 
-                transition-transform hover:scale-110 active:scale-95 bg-white relative group
-                ${member.isDeceased ? 'border-gray-400 bg-gray-100 grayscale' : baseColor} 
-                print:border-2 print:shadow-none text-gray-900
-            `}>
+            <div
+                className={`
+                    flex flex-col items-center justify-center p-2 rounded-full border-4 shadow-lg w-20 h-20 sm:w-24 sm:h-24 
+                    transition-transform hover:scale-110 active:scale-95 bg-white relative group
+                    ${member.isDeceased ? 'border-gray-400 bg-gray-100 grayscale' : baseColor} 
+                    print:border-2 print:shadow-none text-gray-900 cursor-pointer
+                `}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onCardTap(member.id);
+                }}
+            >
                 {/* Death Indicator */}
                 {member.isDeceased && (
                     <div className="absolute top-2 left-1 w-6 h-6 z-20">
@@ -332,8 +366,10 @@ const TreeNode = ({
                 <span className="font-bold text-center text-[10px] sm:text-xs line-clamp-2 leading-tight">{member.name}</span>
 
                 {/* Hover Detail Card */}
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-50 pointer-events-none shadow-xl text-center">
-                    {member.location?.country && <div>📍 {member.isDeceased ? 'الدولة' : 'الإقامة'}: {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
+                <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-50 pointer-events-none shadow-xl text-center
+                    ${activeCardId === member.id ? '!block !z-[101]' : ''}
+                `}>
+                    {member.location?.country && <div>📍 {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
                     {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
                     {member.hobbies && member.hobbies.length > 0 && <div>🎨 {member.hobbies.join(', ')}</div>}
                     {member.bio && <div className="mt-1 italic border-t border-gray-600 pt-1">"{member.bio}"</div>}
@@ -683,8 +719,10 @@ const TreeNode = ({
                                         isFirst={idx === 0}
                                         isLast={idx === visualChildren.length - 1}
                                         expandedIds={expandedIds}
+                                        activeCardId={activeCardId}
                                         onToggle={onToggle}
                                         onExpand={onExpand}
+                                        onCardTap={onCardTap}
                                     />
                                 ))}
                             </div>
@@ -704,6 +742,7 @@ export default function TreeVisualizer({ members, rootId, isOwner, reload }: Pro
 
     // --- State for Expansion (Persisted) ---
     const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set([rootId]));
+    const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
     // Load preferences & expansion on mount
     useEffect(() => {
@@ -794,8 +833,10 @@ export default function TreeVisualizer({ members, rootId, isOwner, reload }: Pro
                         layoutMode={layoutMode}
                         nodeStyle={nodeStyle}
                         expandedIds={expandedIds}
+                        activeCardId={activeCardId}
                         onToggle={toggleExpand}
                         onExpand={expandNode}
+                        onCardTap={(id) => setActiveCardId(prev => prev === id ? null : id)}
                     />
                 </div>
             </div>
