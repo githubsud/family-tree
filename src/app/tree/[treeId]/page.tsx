@@ -170,7 +170,7 @@ export default function TreePage() {
                             <div className="flex gap-2">
                                 <input
                                     className="flex-1 border p-2 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
-                                    placeholder="مثال: من هم أبناء أحمد أبايزيد؟"
+                                    placeholder="من هم أبناء فلان"
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
                                     autoFocus
@@ -193,8 +193,10 @@ export default function TreePage() {
 
                         <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-500">
                             <span>جرب:</span>
-                            <span className="bg-gray-100 px-2 py-1 rounded cursor-pointer hover:bg-gray-200" onClick={() => setSearchQuery("من هم أبناء " + (tree.name || "الجد"))}>من هم الأبناء؟</span>
-                            <span className="bg-gray-100 px-2 py-1 rounded cursor-pointer hover:bg-gray-200" onClick={() => setSearchQuery("كم عدد الذكور والإناث؟")}>إحصائيات</span>
+                            <span className="bg-gray-100 px-2 py-1 rounded cursor-pointer hover:bg-gray-200" onClick={() => setSearchQuery("من هم أبناء " + (tree.name?.split(' ')[0] || "فلان"))}>من هم أبناء فلان</span>
+                            <span className="bg-gray-100 px-2 py-1 rounded cursor-pointer hover:bg-gray-200" onClick={() => setSearchQuery("ما علاقة فلان بفلان")}>ما علاقة فلان بفلان</span>
+                            <span className="bg-gray-100 px-2 py-1 rounded cursor-pointer hover:bg-gray-200" onClick={() => setSearchQuery("من يقيم في السودان")}>من يقيم في السودان</span>
+                            <span className="bg-gray-100 px-2 py-1 rounded cursor-pointer hover:bg-gray-200" onClick={() => setSearchQuery("كم عدد أبناء " + (tree.name || "المؤسس"))}>إحصائيات</span>
                         </div>
                     </div>
                 </div>

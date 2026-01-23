@@ -149,6 +149,9 @@ const TreeNode = ({
     const [editOccupationStatus, setEditOccupationStatus] = useState<'student' | 'working' | 'unemployed' | 'retired' | ''>('');
     const [editHobbies, setEditHobbies] = useState("");
     const [editBio, setEditBio] = useState("");
+    const [editWorkPlace, setEditWorkPlace] = useState("");
+    const [editEducationLevel, setEditEducationLevel] = useState<'secondary' | 'bachelor' | 'master' | 'phd' | ''>('');
+    const [editEducationField, setEditEducationField] = useState("");
 
     const [newChildName, setNewChildName] = useState("");
     const [newChildGender, setNewChildGender] = useState<'male' | 'female'>('male');
@@ -162,7 +165,8 @@ const TreeNode = ({
             isDeceased: editIsDeceased,
             spouseStatus: editSpouseStatus,
             location: { country: editCountry, city: editCity },
-            occupation: { title: editOccupation, status: editOccupationStatus },
+            occupation: { title: editOccupation, status: editOccupationStatus, company: editWorkPlace },
+            education: { level: editEducationLevel, field: editEducationField },
             hobbies: editHobbies ? editHobbies.split(',').map(s => s.trim()) : [],
             bio: editBio
         };
@@ -212,6 +216,18 @@ const TreeNode = ({
         }
     };
 
+    // --- Derived Data Lists ---
+    // Merge constants with unique values from current members
+    const derivedCountries = Array.from(new Set([
+        ...Object.keys(COUNTRIES_AND_CITIES),
+        ...allMembers.map(m => m.location?.country).filter(Boolean) as string[]
+    ]));
+
+    const derivedJobs = Array.from(new Set([
+        ...COMMON_OCCUPATIONS,
+        ...allMembers.map(m => m.occupation?.title).filter(Boolean) as string[]
+    ]));
+
     // --- Dynamic Styles based on Preferences ---
 
     // Layout Classes
@@ -252,14 +268,15 @@ const TreeNode = ({
                     )}
 
                     <span className="text-[10px] text-gray-500">{spouseLabel}</span>
-                    <span className="font-bold text-center text-xs leading-tight">{member.name || 'لا يوجد الإسم'}</span>
+                    <span className="font-bold text-center text-xs leading-tight text-gray-900">{member.name || 'لا يوجد الإسم'}</span>
 
                     {/* Hover Detail Card */}
                     <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-black/90 text-white text-[10px] p-2 rounded hidden group-hover:block z-50 pointer-events-none shadow-xl text-center
                     ${activeCardId === member.id ? '!block !z-[101]' : ''}
                 `}>
                         {member.location?.country && <div>📍 {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
-                        {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
+                        {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.company ? ` في ${member.occupation.company}` : ''} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
+                        {member.education?.level && <div>🎓 {member.education.level === 'phd' ? 'دكتوراة' : member.education.level === 'master' ? 'ماجستير' : member.education.level === 'bachelor' ? 'بكالوريوس' : 'ثانوي'} {member.education.field ? `في ${member.education.field}` : ''}</div>}
                         {member.hobbies && member.hobbies.length > 0 && <div>🎨 {member.hobbies.join(', ')}</div>}
                         {member.bio && <div className="mt-1 italic border-t border-gray-600 pt-1">"{member.bio}"</div>}
                         {(!member.location?.country && !member.occupation?.title && !member.bio) && <div className="opacity-50">لا توجد تفاصيل إضافية</div>}
@@ -296,7 +313,8 @@ const TreeNode = ({
                     ${activeCardId === member.id ? '!block !z-[101]' : ''}
                 `}>
                         {member.location?.country && <div>📍 {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
-                        {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
+                        {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.company ? ` في ${member.occupation.company}` : ''} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
+                        {member.education?.level && <div>🎓 {member.education.level === 'phd' ? 'دكتوراة' : member.education.level === 'master' ? 'ماجستير' : member.education.level === 'bachelor' ? 'بكالوريوس' : 'ثانوي'} {member.education.field ? `في ${member.education.field}` : ''}</div>}
                         {member.hobbies && member.hobbies.length > 0 && <div>🎨 {member.hobbies.join(', ')}</div>}
                         {member.bio && <div className="mt-1 italic border-t border-gray-600 pt-1">"{member.bio}"</div>}
                         {(!member.location?.country && !member.occupation?.title && !member.bio) && <div className="opacity-50">لا توجد تفاصيل إضافية</div>}
@@ -332,7 +350,8 @@ const TreeNode = ({
                     ${activeCardId === member.id ? '!block !z-[101]' : ''}
                 `}>
                         {member.location?.country && <div>📍 {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
-                        {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
+                        {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.company ? ` في ${member.occupation.company}` : ''} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
+                        {member.education?.level && <div>🎓 {member.education.level === 'phd' ? 'دكتوراة' : member.education.level === 'master' ? 'ماجستير' : member.education.level === 'bachelor' ? 'بكالوريوس' : 'ثانوي'} {member.education.field ? `في ${member.education.field}` : ''}</div>}
                         {member.hobbies && member.hobbies.length > 0 && <div>🎨 {member.hobbies.join(', ')}</div>}
                         {member.bio && <div className="mt-1 italic border-t border-gray-600 pt-1">"{member.bio}"</div>}
                         {(!member.location?.country && !member.occupation?.title && !member.bio) && <div className="opacity-50">لا توجد تفاصيل إضافية</div>}
@@ -370,7 +389,8 @@ const TreeNode = ({
                     ${activeCardId === member.id ? '!block !z-[101]' : ''}
                 `}>
                     {member.location?.country && <div>📍 {member.location.country}{member.location.city ? `, ${member.location.city}` : ''}</div>}
-                    {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
+                    {member.occupation?.title && <div>💼 {member.occupation.title} {member.occupation.company ? ` في ${member.occupation.company}` : ''} {member.occupation.status ? `(${member.occupation.status === 'working' ? 'يعمل' : member.occupation.status === 'retired' ? 'متقاعد' : member.occupation.status === 'student' ? 'طالب' : 'يبحث عن عمل'})` : ''}</div>}
+                    {member.education?.level && <div>🎓 {member.education.level === 'phd' ? 'دكتوراة' : member.education.level === 'master' ? 'ماجستير' : member.education.level === 'bachelor' ? 'بكالوريوس' : 'ثانوي'} {member.education.field ? `في ${member.education.field}` : ''}</div>}
                     {member.hobbies && member.hobbies.length > 0 && <div>🎨 {member.hobbies.join(', ')}</div>}
                     {member.bio && <div className="mt-1 italic border-t border-gray-600 pt-1">"{member.bio}"</div>}
                     {(!member.location?.country && !member.occupation?.title && !member.bio) && <div className="opacity-50">لا توجد تفاصيل إضافية</div>}
@@ -498,6 +518,9 @@ const TreeNode = ({
                                     setEditCity(member.location?.city || "");
                                     setEditOccupation(member.occupation?.title || "");
                                     setEditOccupationStatus(member.occupation?.status || "");
+                                    setEditWorkPlace(member.occupation?.company || "");
+                                    setEditEducationLevel(member.education?.level || "");
+                                    setEditEducationField(member.education?.field || "");
                                     setEditHobbies(member.hobbies?.join(', ') || "");
                                     setEditBio(member.bio || "");
 
@@ -551,7 +574,7 @@ const TreeNode = ({
                                             </label>
                                             <input list="countries" className="border p-1.5 w-full text-sm rounded bg-gray-50 text-right" placeholder={editIsDeceased ? 'الدولة' : 'دولة الإقامة'} value={editCountry} onChange={e => setEditCountry(e.target.value)} />
                                             <datalist id="countries">
-                                                {Object.keys(COUNTRIES_AND_CITIES).map(country => (
+                                                {derivedCountries.map(country => (
                                                     <option key={country} value={country} />
                                                 ))}
                                                 <option value="أخرى" />
@@ -581,10 +604,28 @@ const TreeNode = ({
                                             </select>
                                             <input list="jobs" className="border p-1.5 w-2/3 text-sm rounded bg-gray-50 text-right" placeholder="المسمى الوظيفي" value={editOccupation} onChange={e => setEditOccupation(e.target.value)} />
                                             <datalist id="jobs">
-                                                {COMMON_OCCUPATIONS.map(job => (
+                                                {derivedJobs.map(job => (
                                                     <option key={job} value={job} />
                                                 ))}
                                             </datalist>
+                                        </div>
+                                        <div>
+                                            <input className="border p-1.5 w-full text-sm rounded bg-gray-50 text-right" placeholder="مكان العمل (الشركة/الجهة)" value={editWorkPlace} onChange={e => setEditWorkPlace(e.target.value)} />
+                                        </div>
+                                    </div>
+
+                                    {/* Education */}
+                                    <div>
+                                        <label className="text-[10px] text-gray-500 block mb-1">التعليم</label>
+                                        <div className="flex gap-2 mb-1">
+                                            <select className="border p-1.5 w-1/3 text-xs rounded bg-gray-50 text-right" value={editEducationLevel} onChange={(e: any) => setEditEducationLevel(e.target.value)}>
+                                                <option value="">- المستوى -</option>
+                                                <option value="secondary">ثانوي</option>
+                                                <option value="bachelor">بكالوريوس</option>
+                                                <option value="master">ماجستير</option>
+                                                <option value="phd">دكتوراة</option>
+                                            </select>
+                                            <input className="border p-1.5 w-2/3 text-sm rounded bg-gray-50 text-right" placeholder="التخصص" value={editEducationField} onChange={e => setEditEducationField(e.target.value)} />
                                         </div>
                                     </div>
 

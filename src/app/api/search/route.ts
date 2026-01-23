@@ -38,7 +38,9 @@ export async function POST(request: Request) {
         location: data.location,
         occupation: data.occupation,
         hobbies: data.hobbies,
-        bio: data.bio
+        bio: data.bio,
+        workPlace: data.occupation?.company,
+        education: data.education
       };
     });
 
@@ -64,6 +66,8 @@ export async function POST(request: Request) {
       - "Who is the wife of X?" -> Find members where spouseOf is X's ID.
       - "Who lives in Sudan?" -> Check 'location.country'.
       - "Who is an Engineer?" -> Check 'occupation.title'.
+      - "Who works at X?" -> Check 'workPlace'.
+      - "Who has a PhD?" -> Check 'education.level' is 'phd'.
       - "List all deceased members" -> Check 'isDeceased' is true.
       
       Output the answer in Arabic clearly and concisely.

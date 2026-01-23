@@ -26,7 +26,12 @@ export interface FamilyMember {
     };
     occupation?: {
         title: string;
+        company?: string; // workplace
         status: 'student' | 'working' | 'unemployed' | 'retired';
+    };
+    education?: {
+        level: 'secondary' | 'bachelor' | 'master' | 'phd';
+        field?: string; // e.g. Computer Science
     };
     hobbies?: string[];
     bio?: string;
